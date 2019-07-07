@@ -201,6 +201,12 @@ esMasJoven(Candidato, OtroCandidato) :-
         edad(OtroCandidato, Edad2),
         Edad2 >= Edad1.
     
+    Y sin abstraer:
+
+        elGranCandidato(Candidato) :-
+        candidato(Candidato, Partido),
+        forall(candidato(OtroCandidato, Partido), esMasJoven(Candidato, OtroCandidato)).    %candidatoMasJoven()
+        forall(compite(Candidato, Partido, Provincia), ganaProvincia(Candidato, Provincia)).    %ganaTodasDondeCompite()
     */
 
 % PUNTO 5
@@ -212,6 +218,7 @@ ajusteConsultora(Partido, Provincia, PorcentajeReal) :-
 
 ajusteConsultora(Partido, Provincia, PorcentajeReal) :-
     intencionDeVotoEn(Provincia, Partido, Porcentaje),
+    not(ganaProvinciaPartido(Partido, Provincia)),
     PorcentajeReal is Porcentaje + 5.
 
 ganaProvinciaPartido(Partido, Provincia) :-
