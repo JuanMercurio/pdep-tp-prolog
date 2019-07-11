@@ -111,10 +111,12 @@ poblacion(misiones, 1189446).
 % PUNTO 2
 esPicante(Provincia) :-
     poblacionMayorA(1000000, Provincia),
-    sePostula(Persona, Provincia), 
-    sePostula(OtraPersona, Provincia),
-    Persona \= OtraPersona.
-    
+    sePostulaMasDeUnpartido(Provincia).
+
+sePostulaMasDeUnpartido(Provincia):-
+    sePostula(Partido, Provincia), 
+    sePostula(OtroPartido, Provincia),
+    Partido \= OtroPartido.
 
 poblacionMayorA(Num, Provincia) :-
     poblacion(Provincia, Habitantes),
@@ -122,21 +124,26 @@ poblacionMayorA(Num, Provincia) :-
 
 
 % PUNTO 3
-leGanaA(Candidato1, Candidato2, Provincia) :-
-    candidato(Candidato2, Partido),
-    compite(Candidato1, _, Provincia),
-    not(compite(Candidato2, Partido, Provincia)).
+leGana2(Candidato1, Candidato2, Provincia):-
+    compite(Candidato1, Partido, Provincia),
+    candidato(Candidato2, OtroPartido),
+    partidoPostulanteLeGanaA(Partido,OtroPartido,Provincia).
 
-leGanaA(Candidato1, Candidato2, Provincia) :-
-    compite(Candidato1, Partido1, Provincia),
-    compite(Candidato2, Partido2, Provincia),
+partidoPostulanteLeGanaA(Partido,OtroPartido,Provincia):-
+    not(sePostula(OtroPartido, Provincia)).
+
+
+partidoPostulanteLeGanaA(Partido,Partido,_).
+
+partidoPostulanteLeGanaA(Partido,OtroPartido,Provincia):-
+    sePostula(OtroPartido,Provincia),
+    tieneMayorCantidadDeVotos(Partido,OtroPartido)
+
+tieneMayorCantidadDeVotos(Partido1, Partido2, Provincia) :-
     intencionDeVotoEn(Provincia, Partido1, PorcentajePartido1),
     intencionDeVotoEn(Provincia, Partido2, PorcentajePartido2),
     PorcentajePartido1 > PorcentajePartido2.
 
-leGanaA(Candidato1, Candidato2, Provincia) :-
-    compite(Candidato1, Partido, Provincia),
-    compite(Candidato2, Partido, Provincia).
 
 compite(Candidato, Partido, Provincia) :-
     candidato(Candidato, Partido),
@@ -144,6 +151,7 @@ compite(Candidato, Partido, Provincia) :-
 
 % PUNTO 4   
 elGranCandidato(Candidato) :-
+    candidato(Candidato, Partido),
     candidatoMasJoven(Candidato, Partido),
     ganaTodasDondeCompite(Candidato,Partido).
 
