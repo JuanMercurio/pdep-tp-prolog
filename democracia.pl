@@ -124,20 +124,18 @@ poblacionMayorA(Num, Provincia) :-
 
 
 % PUNTO 3
-leGana2(Candidato1, Candidato2, Provincia):-
+leGanaA(Candidato1, Candidato2, Provincia):-
     compite(Candidato1, Partido, Provincia),
     candidato(Candidato2, OtroPartido),
-    partidoPostulanteLeGanaA(Partido,OtroPartido,Provincia).
+    partidoPostulanteLeGanaA(Partido,OtroPartido,Provincia). 
 
-partidoPostulanteLeGanaA(Partido,OtroPartido,Provincia):-
+partidoPostulanteLeGanaA(_,OtroPartido,Provincia):-
     not(sePostula(OtroPartido, Provincia)).
-
 
 partidoPostulanteLeGanaA(Partido,Partido,_).
 
 partidoPostulanteLeGanaA(Partido,OtroPartido,Provincia):-
-    sePostula(OtroPartido,Provincia),
-    tieneMayorCantidadDeVotos(Partido,OtroPartido)
+    tieneMayorCantidadDeVotos(Partido,OtroPartido, Provincia).
 
 tieneMayorCantidadDeVotos(Partido1, Partido2, Provincia) :-
     intencionDeVotoEn(Provincia, Partido1, PorcentajePartido1),
@@ -149,73 +147,29 @@ compite(Candidato, Partido, Provincia) :-
     candidato(Candidato, Partido),
     sePostula(Partido, Provincia).
 
+
+
 % PUNTO 4   
-elGranCandidato(Candidato) :-
-    candidato(Candidato, Partido),
-    candidatoMasJoven(Candidato, Partido),
-    ganaTodasDondeCompite(Candidato,Partido).
-
-candidatoMasJoven(Candidato, Partido) :-
-    candidato(Candidato, Partido),
-    forall(candidato(OtroCandidato, Partido), esMasJoven(Candidato, OtroCandidato)).
-
-ganaTodasDondeCompite(Candidato,Partido) :- 
-    candidato(Candidato, Partido),
-    forall(compite(Candidato, Partido, Provincia), ganaProvincia(Candidato, Provincia)).
-
-ganaProvincia(Candidato, Provincia) :-
-    compite(Candidato, _, Provincia),
-    forall(compite(OtroCandidato, _, Provincia), leGanaA(Candidato, OtroCandidato, Provincia)).
-
-esMasJoven(Candidato, OtroCandidato) :-
-    edad(Candidato, Edad1), 
-    edad(OtroCandidato, Edad2),
-    Edad2 >= Edad1.
-
-/* Para saber quienes son los grandes candidatos se hace la siguiente consulta:
-   
-    elGranCandidato(Candidato).
-    Candidato = frank;
-    false.
-
-    Esta Consulta se puede hacer porque la regla elgranCandidato() es inversible.
-*/
-
-/*  Esta seria otra forma de solucionarlo:
-       
-        En esta solucion hay menos repetecion de codigo pero 
-        candidatoMasJoven, ganaTodasDondeCompite y ganaProvincia no son 
-        inversibles. Al no ser inversibles no podemos hacer la 
-        misma cantidad de consultas que haciamos antes, por 
-        ejemplo ahora la siguiente consulta daria false: 
-        ganaTodasDondeCompite(Candidato, Partido).
-
-    elGranCandidato(Candidato) :-
+ elGranCandidato(Candidato) :-
         candidato(Candidato, Partido),
         candidatoMasJoven(Candidato, Partido),
         ganaTodasDondeCompite(Candidato, Partido).
 
-    candidatoMasJoven(Candidato, Partido) :-
+candidatoMasJoven(Candidato, Partido) :-
         forall(candidato(OtroCandidato, Partido), esMasJoven(Candidato, OtroCandidato)).
     
-    ganaTodasDondeCompite(Candidato,Partido) :- 
+ganaTodasDondeCompite(Candidato,Partido) :- 
         forall(compite(Candidato, Partido, Provincia), ganaProvincia(Candidato, Provincia)).
 
-    ganaProvincia(Candidato, Provincia) :-
-        forall(compite(OtroCandidato, _, Provincia), leGanaA(Candidato, OtroCandidato, Provincia)).    
+ganaProvincia(Partido, Provincia) :-
+        forall(sePostula(OtroPartido, Provincia), partidoPostulanteLeGanaA(Partido,OtroPartido,Provincia)).                
         
-    esMasJoven(Candidato, OtroCandidato) :-
+esMasJoven(Candidato, OtroCandidato) :-
         edad(Candidato, Edad1), 
         edad(OtroCandidato, Edad2),
         Edad2 >= Edad1.
     
-    Y sin abstraer:
-
-        elGranCandidato(Candidato) :-
-        candidato(Candidato, Partido),
-        forall(candidato(OtroCandidato, Partido), esMasJoven(Candidato, OtroCandidato)).    %candidatoMasJoven()
-        forall(compite(Candidato, Partido, Provincia), ganaProvincia(Candidato, Provincia)).    %ganaTodasDondeCompite()
-    */
+ 
 
 % PUNTO 5
 
@@ -230,7 +184,6 @@ ajusteConsultora(Partido, Provincia, PorcentajeReal) :-
     PorcentajeReal is Porcentaje + 5.
 
 ganaProvinciaPartido(Partido, Provincia) :-
-    candidato(Candidato, Partido),
-    ganaProvincia(Candidato, Provincia).
+    ganaProvincia(Partido, Provincia).
 
 
