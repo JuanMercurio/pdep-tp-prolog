@@ -57,6 +57,26 @@ candidato(catherine, rojo).
 candidato(seth, amarillo).
 candidato(heather, amarillo).
 
+% promesa(Candidato, Promesa).
+promesa(garrett, inflacion(18)).
+%promesa(garrett, construir(escuela, universidad, hospital, ruta)). sin listas
+promesa(garrett, construir([escuela, universidad, hospital, ruta])).
+%promesa(garrett, construir(casas, autopistas)). sin listas
+promesa(garrett, construir([casas, autopistas])).
+promesa(seth, inflacion(10)).
+promesa(claire, inflacion(4)).
+promesa(claire, trabajo(200000)).
+promesa(claire, inflacion(14)).
+promesa(claire, trabajo(520000)).
+promesa(claire, trabajo(1000000)).
+promesa(frank, inflacion(3)).
+%promesa(frank, construir(hospital, universidad)). sin listas
+promesa(frank, construir([hospital, univeridad])).
+promesa(frank, inflacion(13)).
+promesa(frank, trabajo(10000)).
+%promesa(frank, construir(plazas, autopistas, extensionSubte, pavimentacion)). sin listas
+promesa(frank, construir([plazas, autompistas, extensionSubte, pavimentacion])).
+
 % edad(Persona, Edad)
 edad(heather, 50).
 edad(catherine, 59).
@@ -172,7 +192,6 @@ esMasJoven(Candidato, OtroCandidato) :-
  
 
 % PUNTO 5
-
 ajusteConsultora(Partido, Provincia, PorcentajeReal) :-
     intencionDeVotoEn(Provincia, Partido, Porcentaje),
     ganaProvinciaPartido(Partido, Provincia),
@@ -187,3 +206,54 @@ ganaProvinciaPartido(Partido, Provincia) :-
     ganaProvincia(Partido, Provincia).
 
 
+% PUNTO 7
+
+/*
+
+sin Listas
+
+noQuiereConstruirUniversidad(_, construir(A, B)) :-
+    A \= universidad,
+    B \= univerisad.
+
+noQuiereConstruirUniversidad(_, construir(A, B, C, D)) :-
+    A \= universidad,    
+    B \= universidad,    
+    C \= universidad,    
+    D \= universidad.   
+
+promesaRealizable(Candidato, Construir):-
+    noQuiereConstruirUniversidad(Candidato, Construir). 
+
+*/ 
+candidatoSerio(Candidato) :-
+    candidato(Candidato, _),
+    tieneAlMenos3PromesasRealizables(Candidato).
+
+tieneAlMenos3PromesasRealizables(Candidato) :-
+    findall(Promesa, promesaRealizable(Candidato, Promesa), Promesas),
+    length(Promesas, Cantidad),
+    Cantidad >= 3.
+
+promesaRealizable(Candidato, Promesa) :-
+    promesa(Candidato, Promesa),
+    puedeCumplir(Candidato, Promesa).
+
+puedeCumplir(Candidato, construir(Construcciones)) :-
+    promesa(Candidato, construir(Construcciones)),
+    noConstruye(universidad, Construcciones),
+    construyeMenosDe3(Construcciones).
+
+puedeCumplir(Candidato, trabajo(Cant)) :-
+    edad(Candidato, Edad),
+    Edad * 10000 >= Cant.
+
+puedeCumplir(_, inflacion(Cant)) :-
+    Cant >= 10.
+
+construyeMenosDe3(Construcciones) :-
+    length(Construcciones, Cant),
+    Cant < 3.
+
+noConstruye(universidad, Construcciones) :-
+    not(member(univeridad, Construcciones)).
