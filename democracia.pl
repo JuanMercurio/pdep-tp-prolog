@@ -71,11 +71,21 @@ promesa(claire, trabajo(520000)).
 promesa(claire, trabajo(1000000)).
 promesa(frank, inflacion(3)).
 %promesa(frank, construir(hospital, universidad)). sin listas
-promesa(frank, construir([hospital, univeridad])).
+promesa(frank, construir([hospital, universidad])).
 promesa(frank, inflacion(13)).
 promesa(frank, trabajo(10000)).
 %promesa(frank, construir(plazas, autopistas, extensionSubte, pavimentacion)). sin listas
 promesa(frank, construir([plazas, autompistas, extensionSubte, pavimentacion])).
+
+% leDebeFavor(CandidatoEnDeuda, CandidatoBeneficiado).
+leDebeFavor(frank, claire).
+leDebeFavor(frank, linda).
+leDebeFavor(claire, catherine).
+leDebeFavor(claire, seth).
+leDebeFavor(catherine, jackie).
+leDebeFavor(jackie, garrett).
+leDebeFavor(jackie, heather).
+leDebeFavor(seth, heather).
 
 % edad(Persona, Edad)
 edad(heather, 50).
@@ -255,5 +265,128 @@ construyeMenosDe3(Construcciones) :-
     length(Construcciones, Cant),
     Cant < 3.
 
-noConstruye(universidad, Construcciones) :-
-    not(member(univeridad, Construcciones)).
+noConstruye(Lugar, Construcciones) :-
+    not(member(Lugar, Construcciones)).
+
+
+
+% PUNTO 8 
+convieneQueGane(Ganador, Ganador).
+
+convieneQueGane(Ganador, Candidato) :-
+    leDebeFavor(Ganador, Candidato).
+
+convieneQueGane(Ganador, Candidato):-
+    leDebeFavor(Alguien, Candidato),
+    convieneQueGane(Ganador, Alguien),
+    Ganador \= Alguien. %
+
+estaArregladoPara(Candidato) :-
+    candidato(Candidato, _),
+    forall(candidato(OtroCandidato, _), convieneQueGane(Candidato, OtroCandidato)).
+
+
+% PUNTO 9
+favorito(Candidato) :-
+    candidato(Candidato, _),
+    tieneMasPuntosQueTodos(Candidato).
+
+tieneMasPuntosQueTodos(Candidato) :-
+    forall(candidato(OtroCandidato,_), tieneMasPuntos(Candidato, OtroCandidato)).
+
+tieneMasPuntos(Candidato, OtroCandidato) :-
+    puntosFinal(Candidato, PuntosCandidato),
+    puntosFinal(OtroCandidato, PuntosOtroCandidato),
+    PuntosCandidato >= PuntosOtroCandidato.
+
+puntosFinal(Candidato, PuntosFinal) :-
+    findall(Puntos, puntos(Candidato, Puntos), PuntosLista),
+    sumlist(PuntosLista, PuntosFinal).
+
+puntos(Candidato, 5) :-
+    promesa(Candidato, inflacion(Num)),
+    10 =< Num, 
+    Num =< 18.
+
+puntos(Candidato, -3) :-
+    promesa(Candidato, inflacion(Num)),
+    Num > 18,
+    Num < 10.
+
+puntos(Candidato, Puntos) :-
+    promesa(Candidato, construir(Construcciones)),
+    length(Construcciones, Puntos),
+    noConstruye(pavimentacion, Construcciones).
+
+puntos(Candidato, Puntos) :-
+    promesa(Candidato, construir(Construcciones)),
+    length(Construcciones, Cant),
+    not(noConstruye(pavimentacion, Construcciones)),
+    Puntos is Cant - 3.
+
+puntos(Candidato, 1):-
+    promesa(Candidato, trabajo(_)).
+
+
+/* 
+
+puntosFinal(Candidato, PuntosFinal) :-
+    findall(Puntos, puntos(Candidato, _,Puntos), PuntosLista),
+    sumlist(PuntosLista, PuntosFinal).
+
+puntos(_, inflacion(Num), 5) :-
+    10 =< Num, 
+    Num =< 18.
+
+puntos(_, inflacion(Num), -3) :-
+    Num > 18,
+    Num < 10.
+
+puntos(_, construir(Construcciones), Puntos) :-
+    length(Construcciones, Puntos),
+    noConstruye(pavimentacion, Construcciones).
+
+puntos(_, construir(Construcciones), Puntos) :-
+    length(Construcciones, Cant),
+    not(noConstruye(pavimentacion, Construcciones)),
+    Puntos is Cant - 3.
+
+puntos(_, trabajo(_), 1).
+
+*/
+
+/* PUNTO 10
+ 
+  Es necesario agregar:
+        promera(seth, pobreza(0, 10))
+        promera(heather, pobreza(2, 2))
+
+    Se podria haber modelado de otra forma las promesas, por ejemplo: 
+        -promesas(frank, [listado de promesas])
+    
+    Habria que analizar cuando estas promesas son posibles de 
+    cumplir y agregarlas a puedeCumplir()
+    
+*/
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
