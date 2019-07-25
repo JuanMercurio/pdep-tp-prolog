@@ -59,9 +59,7 @@ candidato(heather, amarillo).
 
 % promesa(Candidato, Promesa).
 promesa(garrett, inflacion(18)).
-%promesa(garrett, construir(escuela, universidad, hospital, ruta)). sin listas
 promesa(garrett, construir([escuela, universidad, hospital, ruta])).
-%promesa(garrett, construir(casas, autopistas)). sin listas
 promesa(garrett, construir([casas, autopistas])).
 promesa(seth, inflacion(10)).
 promesa(claire, inflacion(4)).
@@ -70,11 +68,9 @@ promesa(claire, inflacion(14)).
 promesa(claire, trabajo(520000)).
 promesa(claire, trabajo(1000000)).
 promesa(frank, inflacion(3)).
-%promesa(frank, construir(hospital, universidad)). sin listas
 promesa(frank, construir([hospital, universidad])).
 promesa(frank, inflacion(13)).
 promesa(frank, trabajo(10000)).
-%promesa(frank, construir(plazas, autopistas, extensionSubte, pavimentacion)). sin listas
 promesa(frank, construir([plazas, autompistas, extensionSubte, pavimentacion])).
 
 % leDebeFavor(CandidatoEnDeuda, CandidatoBeneficiado).
@@ -218,32 +214,17 @@ ganaProvinciaPartido(Partido, Provincia) :-
 
 % PUNTO 7
 
-/*
-
-sin Listas
-
-noQuiereConstruirUniversidad(_, construir(A, B)) :-
-    A \= universidad,
-    B \= univerisad.
-
-noQuiereConstruirUniversidad(_, construir(A, B, C, D)) :-
-    A \= universidad,    
-    B \= universidad,    
-    C \= universidad,    
-    D \= universidad.   
-
-promesaRealizable(Candidato, Construir):-
-    noQuiereConstruirUniversidad(Candidato, Construir). 
-
-*/ 
 candidatoSerio(Candidato) :-
     candidato(Candidato, _),
     tieneAlMenos3PromesasRealizables(Candidato).
 
 tieneAlMenos3PromesasRealizables(Candidato) :-
-    findall(Promesa, promesaRealizable(Candidato, Promesa), Promesas),
+    listaPromesasRealizables(Candidato, Promesas),
     length(Promesas, Cantidad),
     Cantidad >= 3.
+
+listaPromesasRealizables(Candidato, Promesas) :-
+    findall(Promesa, promesaRealizable(Candidato, Promesa), Promesas).
 
 promesaRealizable(Candidato, Promesa) :-
     promesa(Candidato, Promesa),
@@ -252,7 +233,7 @@ promesaRealizable(Candidato, Promesa) :-
 puedeCumplir(Candidato, construir(Construcciones)) :-
     promesa(Candidato, construir(Construcciones)),
     noConstruye(universidad, Construcciones),
-    construyeMenosDe3(Construcciones).
+    construyeMenosDe(3,Construcciones).
 
 puedeCumplir(Candidato, trabajo(Cant)) :-
     edad(Candidato, Edad),
@@ -261,9 +242,9 @@ puedeCumplir(Candidato, trabajo(Cant)) :-
 puedeCumplir(_, inflacion(Cant)) :-
     Cant >= 10.
 
-construyeMenosDe3(Construcciones) :-
+construyeMenosDe(Num, Construcciones) :-
     length(Construcciones, Cant),
-    Cant < 3.
+    Cant < Num.
 
 noConstruye(Lugar, Construcciones) :-
     not(member(Lugar, Construcciones)).
@@ -279,12 +260,14 @@ convieneQueGane(Ganador, Candidato) :-
 convieneQueGane(Ganador, Candidato):-
     leDebeFavor(Alguien, Candidato),
     convieneQueGane(Ganador, Alguien),
-    Ganador \= Alguien. %
+    Ganador \= Alguien. 
 
 estaArregladoPara(Candidato) :-
     candidato(Candidato, _),
+    aTodosLosConvieneQueGane(Candidato).    
+    
+aTodosLosConvieneQueGane(Candidato):-    
     forall(candidato(OtroCandidato, _), convieneQueGane(Candidato, OtroCandidato)).
-
 
 % PUNTO 9
 favorito(Candidato) :-
@@ -327,33 +310,6 @@ puntos(Candidato, Puntos) :-
 puntos(Candidato, 1):-
     promesa(Candidato, trabajo(_)).
 
-
-/* 
-
-puntosFinal(Candidato, PuntosFinal) :-
-    findall(Puntos, puntos(Candidato, _,Puntos), PuntosLista),
-    sumlist(PuntosLista, PuntosFinal).
-
-puntos(_, inflacion(Num), 5) :-
-    10 =< Num, 
-    Num =< 18.
-
-puntos(_, inflacion(Num), -3) :-
-    Num > 18,
-    Num < 10.
-
-puntos(_, construir(Construcciones), Puntos) :-
-    length(Construcciones, Puntos),
-    noConstruye(pavimentacion, Construcciones).
-
-puntos(_, construir(Construcciones), Puntos) :-
-    length(Construcciones, Cant),
-    not(noConstruye(pavimentacion, Construcciones)),
-    Puntos is Cant - 3.
-
-puntos(_, trabajo(_), 1).
-
-*/
 
 /* PUNTO 10
  
