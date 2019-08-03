@@ -220,8 +220,11 @@ candidatoSerio(Candidato) :-
 
 tieneAlMenos3PromesasRealizables(Candidato) :-
     listaPromesasRealizables(Candidato, Promesas),
+    tieneAlMenosNPromesas(Promesas, 3).
+    
+tieneAlMenosNPromesas(Promesas, N) :-
     length(Promesas, Cantidad),
-    Cantidad >= 3.
+    Cantidad >= N.
 
 listaPromesasRealizables(Candidato, Promesas) :-
     findall(Promesa, promesaRealizable(Candidato, Promesa), Promesas).
