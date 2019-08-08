@@ -234,7 +234,6 @@ promesaRealizable(Candidato, Promesa) :-
     puedeCumplir(Candidato, Promesa).
 
 puedeCumplir(Candidato, construir(Construcciones)) :-
-    promesa(Candidato, construir(Construcciones)),
     noConstruye(universidad, Construcciones),
     construyeMenosDe(3,Construcciones).
 
@@ -281,37 +280,35 @@ tieneMasPuntosQueTodos(Candidato) :-
     forall(candidato(OtroCandidato,_), tieneMasPuntos(Candidato, OtroCandidato)).
 
 tieneMasPuntos(Candidato, OtroCandidato) :-
-    puntosFinal(Candidato, PuntosCandidato),
-    puntosFinal(OtroCandidato, PuntosOtroCandidato),
+    puntosPromesas(Candidato, PuntosCandidato),
+    puntosPromesas(OtroCandidato, PuntosOtroCandidato),
     PuntosCandidato >= PuntosOtroCandidato.
 
-puntosFinal(Candidato, PuntosFinal) :-
-    findall(Puntos, puntos(Candidato, Puntos), PuntosLista),
-    sumlist(PuntosLista, PuntosFinal).
+puntosPromesas(Candidato, PuntosPromesas) :-
+    findall(Puntos, puntosCandidato(Candidato, Promesa, Puntos), PuntosLista),
+    sumlist(PuntosLista, PuntosPromesas).
 
-puntos(Candidato, 5) :-
-    promesa(Candidato, inflacion(Num)),
-    10 =< Num, 
-    Num =< 18.
+puntosCandidato(Candidato, Promesa, Puntos) :-
+    promesa(Candidato, Promesa),
+    puntosPromesa(Promesa, Puntos).
 
-puntos(Candidato, -3) :-
-    promesa(Candidato, inflacion(Num)),
+puntosPromesa(inflacion(Num), 5) :-
+    between(10, 18, Num).
+
+puntosPromesa(inflacion(Num), -3) :-
     Num > 18,
     Num < 10.
 
-puntos(Candidato, Puntos) :-
-    promesa(Candidato, construir(Construcciones)),
+puntosPromesa(construir(Construcciones), Puntos) :- 
     length(Construcciones, Puntos),
     noConstruye(pavimentacion, Construcciones).
 
-puntos(Candidato, Puntos) :-
-    promesa(Candidato, construir(Construcciones)),
+puntosPromesa(construir(Construcciones), Puntos) :-
     length(Construcciones, Cant),
     not(noConstruye(pavimentacion, Construcciones)),
     Puntos is Cant - 3.
 
-puntos(Candidato, 1):-
-    promesa(Candidato, trabajo(_)).
+puntosPromesa(trabajo(_), 1).
 
 
 /* PUNTO 10
